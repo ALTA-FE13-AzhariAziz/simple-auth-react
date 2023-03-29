@@ -1,9 +1,44 @@
-import { Component } from "react";
+import { Component, FormEvent } from "react";
+import axios from "axios";
 
 import Layout from "../../components/Layout";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
 
-class Login extends Component {
+interface PropsType {}
+
+interface StateType {
+  username: string;
+  password: string;
+  loading: boolean;
+}
+
+class Login extends Component<PropsType, StateType> {
+  constructor(props: PropsType) {
+    super(props);
+    this.state = {
+      username: "",
+      password: "",
+      loading: false,
+    };
+  }
+
+  handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const body = {
+      username: this.state.username,
+      password: this.state.password,
+    };
+    axios
+      .post("login", body)
+      .then((response) => {
+        const { data } = response;
+        console.log(data);
+      })
+      .catch((error) => {
+        alert(error.toString());
+      });
+  }
+
   render() {
     return (
       <div className="hero min-h-screen bg-base-200">
@@ -17,7 +52,7 @@ class Login extends Component {
             </p>
           </div>
           <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-            <form>
+            <form onSubmit={(event) => this.handleSubmit(event)}>
               <div className="card-body">
                 <div className="form-control">
                   <label className="label">
@@ -27,6 +62,11 @@ class Login extends Component {
                     type="text"
                     placeholder="Username"
                     className="input input-bordered"
+                    onChange={(event) =>
+                      this.setState({
+                        username: event.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="form-control">
@@ -37,6 +77,11 @@ class Login extends Component {
                     type="password"
                     placeholder="password"
                     className="input input-bordered"
+                    onChange={(event) =>
+                      this.setState({
+                        password: event.target.value,
+                      })
+                    }
                   />
                   <label className="label">
                     <a href="#" className="label-text-alt link link-hover">
@@ -45,7 +90,15 @@ class Login extends Component {
                   </label>
                 </div>
                 <div className="form-control mt-6">
-                  <button className="btn btn-primary">Login</button>
+                  <button
+                    className="btn btn-primary"
+                    type="submit"
+                    disabled={
+                      this.state.username === "" || this.state.password === ""
+                    }
+                  >
+                    Login
+                  </button>
                 </div>
               </div>
             </form>

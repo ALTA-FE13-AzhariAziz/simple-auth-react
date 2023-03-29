@@ -1,9 +1,10 @@
 import { Component } from "react";
-import Card from "../components/Card";
+import Card from "@/components/Card";
+import axios from "axios";
 
-import Layout from "../components/Layout";
-import { Spinner } from "../components/Loading";
-import { UserType } from "../utils/types/user";
+import Layout from "@/components/Layout";
+import { Spinner } from "@/components/Loading";
+import { UserType } from "@/utils/types/user";
 
 interface PropsType {}
 
@@ -23,27 +24,60 @@ class Home extends Component<PropsType, StateType> {
 
   componentDidMount(): void {
     this.fetchData();
+    // this.fetchAlternatif();
   }
 
   fetchData() {
-    let temp: UserType[] = [];
-    for (let i = 1; i <= 8; i++) {
-      const obj = {
-        id: i,
-        first_name: "John",
-        last_name: "Doe",
-        username: `john_doe${i}`,
-        image: "/images/portrait_oval.png",
-      };
-      temp.push(obj);
-    }
-    setTimeout(() => {
-      // setState = updater, untuk merubah nilai dari sebuah state
-      this.setState({
-        datas: temp,
-        loading: false,
-      });
-    }, 1000);
+    // let temp: UserType[] = [];
+    // for (let i = 1; i <= 8; i++) {
+    //   const obj = {
+    //     id: i,
+    //     first_name: "John",
+    //     last_name: "Doe",
+    //     username: `john_doe${i}`,
+    //     image: "/images/portrait_oval.png",
+    //   };
+    //   temp.push(obj);
+    // }
+    // setTimeout(() => {
+    //   // setState = updater, untuk merubah nilai dari sebuah state
+    //   this.setState({
+    //     datas: temp,
+    //     loading: false,
+    //   });
+    // }, 1000);
+    axios
+      .get("users")
+      .then((response) => {
+        const { data } = response.data;
+        this.setState({ datas: data });
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+        alert(error.toString());
+      })
+      .finally(() => this.setState({ loading: false }));
+  }
+
+  fetchAlternatif() {
+    fetch(
+      "https://virtserver.swaggerhub.com/devanada/hells-kitchen/1.1.0/users"
+    )
+      .then((result) => result.json())
+      .then((response) => {
+        const { data } = response;
+        this.setState({ datas: data });
+        console.log(data);
+      })
+      .catch((error) => {
+        // Akan reject ketika server memberikan response failed ke Frontend
+        console.log(error);
+      })
+      .finally(() => this.setState({ loading: false }));
+
+    // Akan resolve ketika server dapat memberikan jawaban/response kepada Frontend
+    // Akan reject ketika server tidak memberikan response sama sekali ke Frontend
   }
 
   render() {
