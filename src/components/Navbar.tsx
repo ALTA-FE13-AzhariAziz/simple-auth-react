@@ -6,13 +6,18 @@ import {
 } from "react-icons/fa";
 // import { Menu, Transition } from "@headlessui/react";
 import { Component, Fragment } from "react";
+import { Link } from "react-router-dom";
+
+import withRouter from "@/utils/navigation";
 
 class Navbar extends Component {
   render() {
     return (
       <div className="navbar bg-base-100">
         <div className="flex-1">
-          <a className="btn btn-ghost normal-case text-xl">daisyUI</a>
+          <Link to={"/"} className="btn btn-ghost normal-case text-xl">
+            daisyUI
+          </Link>
         </div>
         <div className="flex-none gap-2">
           <div className="form-control">
@@ -33,16 +38,16 @@ class Navbar extends Component {
               className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52"
             >
               <li>
-                <a className="justify-between">
+                <Link to={"/profile/testing"} className="justify-between">
                   Profile
                   <span className="badge">New</span>
-                </a>
+                </Link>
               </li>
               <li>
                 <a>Settings</a>
               </li>
               <li>
-                <a>Logout</a>
+                <Link to={"/Login"}>Logout</Link>
               </li>
             </ul>
           </div>
@@ -52,4 +57,4 @@ class Navbar extends Component {
   }
 }
 
-export default Navbar;
+export default withRouter(Navbar);

@@ -1,11 +1,12 @@
 import { Component, FormEvent } from "react";
 import axios from "axios";
 
+import withRouter, { NavigateParam } from "@/utils/navigation";
 import Layout from "@/components/Layout";
 import { Spinner } from "../components/Loading";
 import { UserEdit } from "@/utils/types/user";
 
-interface PropsType {}
+interface PropsType extends NavigateParam {}
 
 interface StateType {
   data: Partial<UserEdit>;
@@ -13,6 +14,7 @@ interface StateType {
   isEdit: boolean;
   image: string;
   objSubmit: Partial<UserEdit>;
+  usernames: string;
 }
 
 class Profile extends Component<PropsType, StateType> {
@@ -24,6 +26,7 @@ class Profile extends Component<PropsType, StateType> {
       data: {},
       loading: true,
       isEdit: false,
+      usernames: "",
     };
   }
 
@@ -32,11 +35,17 @@ class Profile extends Component<PropsType, StateType> {
   }
 
   fetchData() {
+    const { usernamed } = this.props.params;
+    console.log(`${usernamed}`);
     axios
-      .get("users/testing")
+      .get(`users/${usernamed}`)
       .then((response) => {
         const { data } = response.data;
-        this.setState({ data: data, image: data.image });
+        this.setState({
+          data: data,
+          image: data.image,
+          usernames: `${usernamed}`,
+        });
       })
       .catch((error) => {
         console.log(error);
@@ -201,4 +210,4 @@ class Profile extends Component<PropsType, StateType> {
   }
 }
 
-export default Profile;
+export default withRouter(Profile);

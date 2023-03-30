@@ -1,6 +1,8 @@
+import withRouter, { NavigateParam } from "@/utils/navigation";
 import { Component } from "react";
+import { Link } from "react-router-dom";
 
-interface Props {
+interface Props extends NavigateParam {
   image: string;
   username: string;
   first_name: string;
@@ -22,11 +24,18 @@ class Card extends Component<Props> {
         </figure>
         <div className="card-body items-center text-center">
           <h2 className="card-title">
-            {first_name} {last_name}
+            <Link to={`profile/${username}`}>
+              {first_name} {last_name}{" "}
+            </Link>
           </h2>
           <p>{username}</p>
           <div className="card-actions">
-            <button className="btn btn-primary">Check Profile</button>
+            <button
+              onClick={() => this.props.navigate(`/profile/${username}`)}
+              className="btn btn-primary"
+            >
+              Check Profile
+            </button>
           </div>
         </div>
       </div>
@@ -34,4 +43,4 @@ class Card extends Component<Props> {
   }
 }
 
-export default Card;
+export default withRouter(Card);

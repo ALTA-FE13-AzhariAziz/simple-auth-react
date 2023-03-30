@@ -1,10 +1,12 @@
 import { Component, FormEvent } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
+import withRouter, { NavigateParam } from "@/utils/navigation";
 import Layout from "../../components/Layout";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
 
-interface PropsType {}
+interface PropsType extends NavigateParam {}
 
 interface StateType {
   username: string;
@@ -33,6 +35,8 @@ class Login extends Component<PropsType, StateType> {
       .then((response) => {
         const { data } = response;
         console.log(data);
+        alert(data.message);
+        this.props.navigate("/");
       })
       .catch((error) => {
         alert(error.toString());
@@ -83,10 +87,11 @@ class Login extends Component<PropsType, StateType> {
                       })
                     }
                   />
-                  <label className="label">
-                    <a href="#" className="label-text-alt link link-hover">
-                      Forgot password?
-                    </a>
+                  <label className=" mt-5 ml-2">
+                    Don't have a account? Register{" "}
+                    <Link className="font-bold" to="/register">
+                      here!
+                    </Link>
                   </label>
                 </div>
                 <div className="form-control mt-6">
@@ -109,4 +114,4 @@ class Login extends Component<PropsType, StateType> {
   }
 }
 
-export default Login;
+export default withRouter(Login);

@@ -1,11 +1,13 @@
 import React, { Component, FormEvent } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
+import withRouter, { NavigateParam } from "@/utils/navigation";
 import Layout from "@/components/Layout";
 
 import { Input } from "@/components/Input";
 
-interface PropsType {}
+interface PropsType extends NavigateParam {}
 
 interface StateType {
   username: string;
@@ -40,6 +42,8 @@ export class Register extends Component<PropsType, StateType> {
       .then((response) => {
         const { data } = response;
         console.log(data);
+        alert(data.message);
+        this.props.navigate("/Login");
       })
       .catch((error) => {
         alert(error.toString);
@@ -123,4 +127,4 @@ export class Register extends Component<PropsType, StateType> {
   }
 }
 
-export default Register;
+export default withRouter(Register);
