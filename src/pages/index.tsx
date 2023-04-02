@@ -1,33 +1,26 @@
-import { Component } from "react";
-import Card from "@/components/Card";
+import { FC, useState, useEffect } from "react";
 import axios from "axios";
 
-import Layout from "@/components/Layout";
+import { useTitle, useFetchGet } from "@/utils/hooks";
 import { Spinner } from "@/components/Loading";
 import { UserType } from "@/utils/types/user";
+import Layout from "@/components/Layout";
+import Card from "@/components/Card";
 
-interface PropsType {}
+const Home: FC = () => {
+  const [datas, setDatas] = useState<UserType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [refresh, setRefresh] = useState<boolean>(true);
+  const [data] = useFetchGet(
+    "https://virtserver.swaggerhub.com/devanada/hells-kitchen/1.1.0/users"
+  );
+  useTitle("Homepage | User Management");
 
-interface StateType {
-  datas: UserType[];
-  loading: boolean;
-}
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-class Home extends Component<PropsType, StateType> {
-  constructor(props: PropsType) {
-    super(props);
-    this.state = {
-      datas: [],
-      loading: true,
-    };
-  }
-
-  componentDidMount(): void {
-    this.fetchData();
-    // this.fetchAlternatif();
-  }
-
-  fetchData() {
+  function fetchData() {
     // let temp: UserType[] = [];
     // for (let i = 1; i <= 8; i++) {
     //   const obj = {
@@ -50,59 +43,57 @@ class Home extends Component<PropsType, StateType> {
       .get("users")
       .then((response) => {
         const { data } = response.data;
-        this.setState({ datas: data });
+        setDatas(data);
         console.log(response);
       })
       .catch((error) => {
         console.log(error);
         alert(error.toString());
       })
-      .finally(() => this.setState({ loading: false }));
+      .finally(() => setLoading(false));
   }
 
-  fetchAlternatif() {
+  function fetchAlternatif() {
     fetch(
       "https://virtserver.swaggerhub.com/devanada/hells-kitchen/1.1.0/users"
     )
       .then((result) => result.json())
       .then((response) => {
         const { data } = response;
-        this.setState({ datas: data });
+        setDatas(data);
         console.log(data);
       })
       .catch((error) => {
         // Akan reject ketika server memberikan response failed ke Frontend
         console.log(error);
       })
-      .finally(() => this.setState({ loading: false }));
+      .finally(() => setLoading(false));
 
     // Akan resolve ketika server dapat memberikan jawaban/response kepada Frontend
     // Akan reject ketika server tidak memberikan response sama sekali ke Frontend
   }
 
-  render() {
-    return (
-      <Layout>
-        <div className="grid gap-3 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 justify-items-center">
-          {this.state.loading ? (
-            <Spinner />
-          ) : (
-            this.state.datas.map((data, index) => {
-              return (
-                <Card
-                  key={data.id} // <~~ wajib ada sebagai pengenal satu sama lain
-                  first_name={data.first_name}
-                  last_name={data.last_name}
-                  username={data.username}
-                  image={data.image}
-                />
-              );
-            })
-          )}
-        </div>
-      </Layout>
-    );
-  }
-}
+  return (
+    <Layout>
+      <div className="grid gap-3 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 justify-items-center">
+        {loading ? (
+          <Spinner />
+        ) : (
+          datas.map((data) => {
+            return (
+              <Card
+                key={data.id} // <~~ wajib ada sebagai pengenal satu sama lain
+                first_name={data.first_name}
+                last_name={data.last_name}
+                username={data.username}
+                image={data.image}
+              />
+            );
+          })
+        )}
+      </div>
+    </Layout>
+  );
+};
 
 export default Home;

@@ -1,130 +1,123 @@
-import React, { Component, FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { FC, FormEvent, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import withRouter, { NavigateParam } from "@/utils/navigation";
 import Layout from "@/components/Layout";
+import { useTitle } from "@/utils/hooks";
 
-import { Input } from "@/components/Input";
-
-interface PropsType extends NavigateParam {}
-
-interface StateType {
+interface ObjSubmitType {
   username: string;
   password: string;
   firstname: string;
   lastname: string;
-  loading: boolean;
 }
 
-export class Register extends Component<PropsType, StateType> {
-  constructor(props: PropsType) {
-    super(props);
-    this.state = {
-      username: "",
-      password: "",
-      firstname: "",
-      lastname: "",
-      loading: false,
-    };
-  }
+const Register: FC = () => {
+  const [objSubmit, setObjSubmit] = useState<ObjSubmitType>({
+    username: "",
+    password: "",
+    firstname: "",
+    lastname: "",
+  });
 
-  handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const navigate = useNavigate();
+  useTitle("Login | User Management");
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const body = {
-      username: this.state.username,
-      password: this.state.password,
-      firstname: this.state.firstname,
-      lastname: this.state.lastname,
-    };
+
     axios
-      .post("register", body)
+      .post("register", objSubmit)
       .then((response) => {
         const { data } = response;
         console.log(data);
         alert(data.message);
-        this.props.navigate("/Login");
+        navigate("/Login");
       })
       .catch((error) => {
         alert(error.toString);
       });
   }
 
-  render() {
-    return (
-      <Layout>
-        <form onSubmit={(event) => this.handleSubmit(event)}>
-          <div className="container flex flex-shrink-0 items-center justify-center">
-            <div className="w-[50%]">
-              <div className="card-body">
-                <div className="form-control flex-row  justify-between">
-                  <div className="form-control mr-5 w-1/2">
-                    <label className="label">
-                      <span className="label-text">First Name</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="First Name"
-                      className="input input-bordered"
-                      onChange={(event) =>
-                        this.setState({ firstname: event.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="form-control w-1/2">
-                    <label className="label">
-                      <span className="label-text">Last Name</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Last Name"
-                      className="input input-bordered"
-                      onChange={(event) =>
-                        this.setState({ lastname: event.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="form-control">
+  return (
+    <Layout>
+      <form onSubmit={(event) => handleSubmit(event)}>
+        <div className="container flex flex-shrink-0 items-center justify-center">
+          <div className="w-[50%]">
+            <div className="card-body">
+              <div className="form-control flex-row  justify-between">
+                <div className="form-control mr-5 w-1/2">
                   <label className="label">
-                    <span className="label-text">Username</span>
+                    <span className="label-text">First Name</span>
                   </label>
                   <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="First Name"
                     className="input input-bordered"
                     onChange={(event) =>
-                      this.setState({ username: event.target.value })
+                      setObjSubmit({
+                        ...objSubmit,
+                        firstname: event.target.value,
+                      })
                     }
                   />
                 </div>
-
-                <div className="form-control">
+                <div className="form-control w-1/2">
                   <label className="label">
-                    <span className="label-text">Password</span>
+                    <span className="label-text">Last Name</span>
                   </label>
                   <input
-                    type="password"
-                    placeholder="Password"
+                    type="text"
+                    placeholder="Last Name"
                     className="input input-bordered"
                     onChange={(event) =>
-                      this.setState({ password: event.target.value })
+                      setObjSubmit({
+                        ...objSubmit,
+                        lastname: event.target.value,
+                      })
                     }
                   />
                 </div>
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Username</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Username"
+                  className="input input-bordered"
+                  onChange={(event) =>
+                    setObjSubmit({ ...objSubmit, username: event.target.value })
+                  }
+                />
+              </div>
 
-                <div className="form-control mt-6">
-                  <button type="submit" className="btn btn-primary">
-                    Register
-                  </button>
-                </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Password</span>
+                </label>
+                <input
+                  type="password"
+                  placeholder="Password"
+                  className="input input-bordered"
+                  onChange={(event) =>
+                    setObjSubmit({ ...objSubmit, password: event.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-control mt-6">
+                <button type="submit" className="btn btn-primary">
+                  Register
+                </button>
               </div>
             </div>
           </div>
-        </form>
-      </Layout>
-    );
-  }
-}
+        </div>
+      </form>
+    </Layout>
+  );
+};
 
-export default withRouter(Register);
+export default Register;

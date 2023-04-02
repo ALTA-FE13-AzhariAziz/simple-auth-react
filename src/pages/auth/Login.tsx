@@ -1,117 +1,107 @@
-import { Component, FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { FC, FormEvent, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import withRouter, { NavigateParam } from "@/utils/navigation";
-import Layout from "../../components/Layout";
-import { LockClosedIcon } from "@heroicons/react/20/solid";
+import { useTitle } from "@/utils/hooks";
 
-interface PropsType extends NavigateParam {}
-
-interface StateType {
+interface ObjSubmitType {
   username: string;
   password: string;
-  loading: boolean;
 }
 
-class Login extends Component<PropsType, StateType> {
-  constructor(props: PropsType) {
-    super(props);
-    this.state = {
-      username: "",
-      password: "",
-      loading: false,
-    };
-  }
+const Login: FC = () => {
+  const [objSubmit, setObjSubmit] = useState<ObjSubmitType>({
+    username: "",
+    password: "",
+  });
+  const [isDisabled, setIsDisabled] = useState(true);
+  const navigate = useNavigate();
+  useTitle("Login | User Management");
 
-  handleSubmit(event: FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    // TODO: Change the condition inside every method
+    const isEmpty = Object.values(objSubmit).every((val) => val === "");
+  }, [objSubmit]);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const body = {
-      username: this.state.username,
-      password: this.state.password,
-    };
+    setIsDisabled(true);
+
     axios
-      .post("login", body)
+      .post("login", objSubmit)
       .then((response) => {
         const { data } = response;
         console.log(data);
         alert(data.message);
-        this.props.navigate("/");
+        navigate("/");
       })
       .catch((error) => {
         alert(error.toString());
-      });
+      })
+      .finally(() => setIsDisabled(false));
   }
 
-  render() {
-    return (
-      <div className="hero min-h-screen bg-base-200">
-        <div className="hero-content flex-col lg:flex-row-reverse">
-          <div className="text-center lg:text-left">
-            <h1 className="text-5xl font-bold">Login now!</h1>
-            <p className="py-6">
-              Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
-              excepturi exercitationem quasi. In deleniti eaque aut repudiandae
-              et a id nisi.
-            </p>
-          </div>
-          <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-            <form onSubmit={(event) => this.handleSubmit(event)}>
-              <div className="card-body">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Username</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Username"
-                    className="input input-bordered"
-                    onChange={(event) =>
-                      this.setState({
-                        username: event.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Password</span>
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="password"
-                    className="input input-bordered"
-                    onChange={(event) =>
-                      this.setState({
-                        password: event.target.value,
-                      })
-                    }
-                  />
-                  <label className=" mt-5 ml-2">
-                    Don't have a account? Register{" "}
-                    <Link className="font-bold" to="/register">
-                      here!
-                    </Link>
-                  </label>
-                </div>
-                <div className="form-control mt-6">
-                  <button
-                    className="btn btn-primary"
-                    type="submit"
-                    disabled={
-                      this.state.username === "" || this.state.password === ""
-                    }
-                  >
-                    Login
-                  </button>
-                </div>
+  return (
+    <div className="hero min-h-screen bg-base-200">
+      <div className="hero-content flex-col lg:flex-row-reverse">
+        <div className="text-center lg:text-left">
+          <h1 className="text-5xl font-bold">Login now!</h1>
+          <p className="py-6">
+            Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
+            excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
+            a id nisi.
+          </p>
+        </div>
+        <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+          <form onSubmit={(event) => handleSubmit(event)}>
+            <div className="card-body">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Username</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Username"
+                  className="input input-bordered"
+                  onChange={(event) =>
+                    setObjSubmit({ ...objSubmit, username: event.target.value })
+                  }
+                />
               </div>
-            </form>
-          </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Password</span>
+                </label>
+                <input
+                  type="password"
+                  placeholder="password"
+                  className="input input-bordered"
+                  onChange={(event) =>
+                    setObjSubmit({ ...objSubmit, password: event.target.value })
+                  }
+                />
+                <label className=" mt-5 ml-2">
+                  Don't have a account? Register{" "}
+                  <Link className="font-bold" to="/register">
+                    here!
+                  </Link>
+                </label>
+              </div>
+              <div className="form-control mt-6">
+                <button
+                  className="btn btn-primary"
+                  type="submit"
+                  disabled={isDisabled}
+                >
+                  Login
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
-export default withRouter(Login);
+export default Login;

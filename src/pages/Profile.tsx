@@ -1,71 +1,51 @@
-import { Component, FormEvent } from "react";
+import { FC, FormEvent, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 
-import withRouter, { NavigateParam } from "@/utils/navigation";
-import Layout from "@/components/Layout";
 import { Spinner } from "../components/Loading";
 import { UserEdit } from "@/utils/types/user";
+import Layout from "@/components/Layout";
 
-interface PropsType extends NavigateParam {}
+const Profile: FC = () => {
+  const [objSubmit, setObjSubmit] = useState<Partial<UserEdit>>({});
+  const [data, setData] = useState<Partial<UserEdit>>({});
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const params = useParams();
 
-interface StateType {
-  data: Partial<UserEdit>;
-  loading: boolean;
-  isEdit: boolean;
-  image: string;
-  objSubmit: Partial<UserEdit>;
-  usernames: string;
-}
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-class Profile extends Component<PropsType, StateType> {
-  constructor(props: PropsType) {
-    super(props);
-    this.state = {
-      objSubmit: {},
-      image: "",
-      data: {},
-      loading: true,
-      isEdit: false,
-      usernames: "",
-    };
-  }
-
-  componentDidMount(): void {
-    this.fetchData();
-  }
-
-  fetchData() {
-    const { usernamed } = this.props.params;
-    console.log(`${usernamed}`);
+  function fetchData() {
+    const { username } = params;
+    console.log(username);
     axios
-      .get(`users/${usernamed}`)
+      .get(`users/${username}`)
       .then((response) => {
         const { data } = response.data;
-        this.setState({
-          data: data,
-          image: data.image,
-          usernames: `${usernamed}`,
-        });
+        document.title = `${data.username} | User Management`;
+        setData(data);
       })
       .catch((error) => {
         console.log(error);
         alert(error.toString());
       })
-      .finally(() => this.setState({ loading: false }));
+      .finally(() => setLoading(false));
   }
 
-  handleChange(value: string | File, key: keyof typeof this.state.objSubmit) {
-    let temp = { ...this.state.objSubmit };
+  function handleChange(value: string | File, key: keyof typeof objSubmit) {
+    let temp = { ...objSubmit };
     temp[key] = value;
-    this.setState({ objSubmit: temp });
+    setObjSubmit(temp);
   }
 
-  handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData();
-    let key: keyof typeof this.state.objSubmit;
-    for (key in this.state.objSubmit) {
-      formData.append(key, this.state.objSubmit[key]);
+    let key: keyof typeof objSubmit;
+    for (key in objSubmit) {
+      formData.append(key, objSubmit[key]);
     }
     axios
       .put("users", formData, {
@@ -76,138 +56,141 @@ class Profile extends Component<PropsType, StateType> {
       .then((response) => {
         const { data } = response;
         console.log(data);
-        this.setState({ isEdit: false });
+        setIsEdit(false);
       })
       .catch((error) => alert(error.toString()))
-      .finally(() => this.fetchData());
+      .finally(() => fetchData());
   }
 
-  handleEditMode = () => {
-    this.setState({ isEdit: !this.state.isEdit });
+  const handleEditMode = () => {
+    console.log(isEdit);
+    setIsEdit(!isEdit);
   };
 
-  render() {
-    // tulis destructuring dari state data agar penulisan code jadi lebih ringkas
-    return (
-      <Layout>
-        <div className="hero-content flex-col sm:flex-row justify-around  items-center  h-full">
-          <img
-            src={this.state.image}
-            alt={`${this.state.data.username}'s profile picture`}
-            className=" max-w-xs rounded-lg shadow-2xl flex-1"
-          />
-          <div className="">
-            {this.state.isEdit ? (
-              <form onSubmit={(event) => this.handleSubmit(event)}>
-                <div className="card-body">
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Selec Image</span>
-                    </label>
-                    <input
-                      type="file"
-                      placeholder="Select Image"
-                      className="file-input w-full max-w-xs"
-                      onChange={(event) => {
-                        if (!event.currentTarget.files) {
-                          return;
-                        }
-                        this.setState({
-                          image: URL.createObjectURL(
-                            event.currentTarget.files[0]
-                          ),
-                        });
-                        this.handleChange(
-                          event.currentTarget.files[0],
-                          "image"
-                        );
-                      }}
-                    />
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">First Name</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="First Name"
-                      defaultValue={this.state.data.first_name}
-                      onChange={(event) =>
-                        this.handleChange(event.target.value, "first_name")
+  // tulis destructuring dari state data agar penulisan code jadi lebih ringkas
+  return (
+    <Layout>
+      <div className="hero-content flex-col sm:flex-row justify-around  items-center  h-full">
+        <img
+          src={data.image}
+          alt={`${data.username}'s profile picture`}
+          className=" max-w-xs rounded-lg shadow-2xl flex-1"
+        />
+        <div className="">
+          {isEdit ? (
+            <form onSubmit={(event) => handleSubmit(event)}>
+              <div className="card-body">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Selec Image</span>
+                  </label>
+                  <input
+                    type="file"
+                    placeholder="Select Image"
+                    className="file-input w-full max-w-xs"
+                    onChange={(event) => {
+                      if (!event.currentTarget.files) {
+                        return;
                       }
-                      className="input input-bordered"
-                    />
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Last Name</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Last Name"
-                      defaultValue={this.state.data.last_name}
-                      onChange={(event) =>
-                        this.handleChange(event.target.value, "last_name")
-                      }
-                      className="input input-bordered"
-                    />
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Username</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Username"
-                      defaultValue={this.state.data.username}
-                      onChange={(event) =>
-                        this.handleChange(event.target.value, "username")
-                      }
-                      className="input input-bordered"
-                    />
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Password</span>
-                    </label>
-                    <input
-                      defaultValue={this.state.data.password}
-                      onChange={(event) =>
-                        this.handleChange(event.target.value, "password")
-                      }
-                      type="password"
-                      placeholder="password"
-                      className="input input-bordered"
-                    />
-                  </div>
-                  <div className="form-control mt-6">
-                    <button className="btn btn-primary" type="submit">
-                      Submit
-                    </button>
-                  </div>
+                      setData({
+                        ...data,
+                        image: URL.createObjectURL(
+                          event.currentTarget.files[0]
+                        ),
+                      });
+                      handleChange(event.currentTarget.files[0], "image");
+                    }}
+                  />
                 </div>
-              </form>
-            ) : (
-              <div>
-                <h1 className="text-5xl font-bold">
-                  {this.state.data.first_name} {this.state.data.last_name}
-                </h1>
-                <p className="py-6">{this.state.data.username}</p>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">First Name</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="First Name"
+                    defaultValue={data.first_name}
+                    onChange={(event) =>
+                      handleChange(event.target.value, "first_name")
+                    }
+                    className="input input-bordered"
+                  />
+                </div>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Last Name</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Last Name"
+                    defaultValue={data.last_name}
+                    onChange={(event) =>
+                      handleChange(event.target.value, "last_name")
+                    }
+                    className="input input-bordered"
+                  />
+                </div>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Username</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    defaultValue={data.username}
+                    onChange={(event) =>
+                      handleChange(event.target.value, "username")
+                    }
+                    className="input input-bordered"
+                  />
+                </div>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Password</span>
+                  </label>
+                  <input
+                    defaultValue={data.password}
+                    onChange={(event) =>
+                      handleChange(event.target.value, "password")
+                    }
+                    type="password"
+                    placeholder="password"
+                    className="input input-bordered"
+                  />
+                </div>
+                <div className="form-control mt-6">
+                  <button className="btn btn-primary" type="submit">
+                    Submit
+                  </button>
+                </div>
+                <button
+                  className="btn btn-primary"
+                  id="button-edit"
+                  onClick={handleEditMode}
+                >
+                  Back
+                </button>
               </div>
-            )}
-
-            <button
-              className="btn btn-primary"
-              id="button-edit"
-              onClick={this.handleEditMode}
-            >
-              Edit
-            </button>
-          </div>
+            </form>
+          ) : (
+            <div>
+              <h1 className="text-5xl font-bold">
+                {data.first_name} {data.last_name}
+              </h1>
+              <p className="py-6">{data.username}</p>
+              <button
+                className="btn btn-primary"
+                id="button-edit"
+                onClick={handleEditMode}
+              >
+                Edit
+              </button>
+            </div>
+          )}
         </div>
-      </Layout>
-    );
-  }
-}
+      </div>
+    </Layout>
+  );
+};
 
-export default withRouter(Profile);
+export default Profile;
