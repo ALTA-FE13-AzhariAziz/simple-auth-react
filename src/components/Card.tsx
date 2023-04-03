@@ -14,7 +14,7 @@ const Card: FC<Props> = (props) => {
   const { image, username, first_name, last_name } = props;
 
   return (
-    <div className="card w-60 bg-base-100 shadow-xl mb-10 mt-10">
+    <div className="card w-60 bg-base-700 shadow-xl mb-10 mt-10">
       <figure className="px-10 pt-10">
         <img
           src={image}

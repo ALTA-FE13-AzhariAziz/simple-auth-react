@@ -1,7 +1,10 @@
 import { FC, FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
+import { useDispatch } from "react-redux";
 import axios from "axios";
 
+import { handleAuth } from "@/utils/redux/reducers/reducer";
 import { useTitle } from "@/utils/hooks";
 
 interface ObjSubmitType {
@@ -15,12 +18,14 @@ const Login: FC = () => {
     password: "",
   });
   const [isDisabled, setIsDisabled] = useState(true);
+  const [, setCookie] = useCookies();
+
   const navigate = useNavigate();
   useTitle("Login | User Management");
 
   useEffect(() => {
-    // TODO: Change the condition inside every method
-    const isEmpty = Object.values(objSubmit).every((val) => val === "");
+    const isEmpty = Object.values(objSubmit).every((val) => val !== "");
+    setIsDisabled(!isEmpty);
   }, [objSubmit]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -33,6 +38,8 @@ const Login: FC = () => {
         const { data } = response;
         console.log(data);
         alert(data.message);
+        setCookie("tkn", data.token);
+        setCookie("uname", data.username);
         navigate("/");
       })
       .catch((error) => {

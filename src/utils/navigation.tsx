@@ -1,7 +1,7 @@
 import {
+  NavigateFunction,
   useNavigate,
   useParams,
-  NavigateFunction,
   Params,
 } from "react-router-dom";
 
