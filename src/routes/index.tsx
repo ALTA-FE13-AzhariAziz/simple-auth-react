@@ -37,6 +37,7 @@ const Router: FC = () => {
     {
       path: "/login",
       element: checkToken ? <Navigate to="/" /> : <Login />,
+      // element: <Login />,
     },
     {
       path: "/register",

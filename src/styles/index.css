@@ -5,3 +5,7 @@
 body {
   margin: 0;
 }
+
+.swap .swap-on {
+  opacity: 1;
+}
