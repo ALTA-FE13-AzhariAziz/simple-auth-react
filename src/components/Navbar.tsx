@@ -5,17 +5,38 @@ import {
   FaChevronDown,
 } from "react-icons/fa";
 // import { Menu, Transition } from "@headlessui/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FC, useContext } from "react";
+import { useSelector } from "react-redux";
+import { useCookies } from "react-cookie";
 
+import { RootState } from "@/utils/types/redux";
 import { ThemeContext } from "@/utils/context";
+import withReactContent from "sweetalert2-react-content";
+import Swal from "@/utils/swal";
 
 const Navbar: FC = () => {
+  const { uname, isLoggedIn } = useSelector((state: RootState) => state.data);
   const { theme, setTheme } = useContext(ThemeContext);
+  const [, , removeCookie] = useCookies();
+  const MySwal = withReactContent(Swal);
+  const navigate = useNavigate();
 
   function handleTheme(mode: string) {
     console.log(mode);
     setTheme(mode);
+  }
+
+  function handleLogout() {
+    MySwal.fire({
+      title: "Logout",
+      text: "Are you Sure",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        removeCookie("tkn");
+        removeCookie("uname");
+      }
+    });
   }
 
   return (
@@ -63,7 +84,9 @@ const Navbar: FC = () => {
               <a>Settings</a>
             </li>
             <li>
-              <Link to={"/Login"}>Logout</Link>
+              <a onClick={() => (isLoggedIn ? handleLogout() : navigate("/"))}>
+                Logout
+              </a>
             </li>
           </ul>
         </div>

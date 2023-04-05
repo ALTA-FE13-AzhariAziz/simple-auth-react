@@ -1,4 +1,5 @@
 import { FC, FormEvent, useEffect, useState, useContext } from "react";
+import withReactContent from "sweetalert2-react-content";
 import { Link, useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
@@ -7,6 +8,7 @@ import axios from "axios";
 import { handleAuth } from "@/utils/redux/reducers/reducer";
 import { useTitle } from "@/utils/hooks";
 import { ThemeContext } from "@/utils/context";
+import Swal from "@/utils/swal";
 
 interface ObjSubmitType {
   username: string;
@@ -19,6 +21,7 @@ const Login: FC = () => {
     password: "",
   });
   const [isDisabled, setIsDisabled] = useState(true);
+  const MySwal = withReactContent(Swal);
   const [, setCookie] = useCookies();
 
   const navigate = useNavigate();
@@ -36,15 +39,28 @@ const Login: FC = () => {
     axios
       .post("login", objSubmit)
       .then((response) => {
-        const { data } = response;
-        console.log(data);
-        alert(data.message);
-        setCookie("tkn", data.token);
-        setCookie("uname", data.username);
-        navigate("/");
+        const { data, message } = response.data;
+        MySwal.fire({
+          title: "Success",
+          text: message,
+          showCancelButton: false,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            setCookie("tkn", data.token);
+            setCookie("uname", data.username);
+            // localStorage.setItem("tkn", data.token) // disimpan dengan nama tkn dan nilai harus string
+            // localStorage.setItem("uname", data.username) // disimpan dengan nama uname dan nilai harus string
+            navigate("/");
+          }
+        });
       })
       .catch((error) => {
-        alert(error.toString());
+        const { data } = error.response;
+        MySwal.fire({
+          title: "Failed",
+          text: data.message,
+          showCancelButton: false,
+        });
       })
       .finally(() => setIsDisabled(false));
   }

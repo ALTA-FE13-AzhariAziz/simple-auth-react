@@ -1,23 +1,27 @@
 import { FC, FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import axios from "axios";
 
+import { RootState } from "@/utils/types/redux";
 import Layout from "@/components/Layout";
 import { useTitle } from "@/utils/hooks";
 
 interface ObjSubmitType {
   username: string;
-  password: string;
   firstname: string;
   lastname: string;
+  password: string;
 }
 
 const Register: FC = () => {
+  const { token, uname } = useSelector((state: RootState) => state.data);
+
   const [objSubmit, setObjSubmit] = useState<ObjSubmitType>({
     username: "",
-    password: "",
     firstname: "",
     lastname: "",
+    password: "",
   });
 
   const navigate = useNavigate();
@@ -25,9 +29,14 @@ const Register: FC = () => {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
+    console.log(objSubmit);
     axios
-      .post("register", objSubmit)
+      .post("register", objSubmit, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
         const { data } = response;
         console.log(data);
@@ -92,14 +101,13 @@ const Register: FC = () => {
                   }
                 />
               </div>
-
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Password</span>
+                  <span className="label-text">password</span>
                 </label>
                 <input
                   type="password"
-                  placeholder="Password"
+                  placeholder="password"
                   className="input input-bordered"
                   onChange={(event) =>
                     setObjSubmit({ ...objSubmit, password: event.target.value })
